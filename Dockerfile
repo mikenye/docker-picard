@@ -9,6 +9,8 @@ RUN apt-get update -y && \
     echo "/usr/bin/picard -N" >> /startapp.sh && \
     chmod a+x /startapp.sh && \
     locale-gen en_US.UTF-8 && \
+    mkdir -p /tmp/run/user/app && \
+    chmod 0700 /tmp/run/user/app && \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_NAME="MusicBrainz Picard" \
