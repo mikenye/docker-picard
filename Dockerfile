@@ -3,7 +3,7 @@ FROM jlesage/baseimage-gui:ubuntu-18.04
 RUN set -x && \
     apt-get update -y && \
     echo "========== Japanese font support (github issue #2) ==========" && \
-    apt-get install -y fonts-takao && \
+    apt-get install -y fonts-takao fonts-takao-mincho && \
     echo "=============================================================" && \
     apt-get install -y locales software-properties-common && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
