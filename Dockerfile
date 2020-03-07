@@ -1,6 +1,10 @@
 FROM jlesage/baseimage-gui:ubuntu-18.04
 
-RUN apt-get update -y && \
+RUN set -x && \
+    apt-get update -y && \
+    echo "========== Japanese font support (github issue #2) ==========" && \
+    apt-get install -y fonts-takao && \
+    echo "=============================================================" && \
     apt-get install -y locales software-properties-common && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get install -y picard && \
@@ -11,6 +15,8 @@ RUN apt-get update -y && \
     locale-gen en_US.UTF-8 && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
+    echo "========== Clean-up ==========" && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_NAME="MusicBrainz Picard" \
