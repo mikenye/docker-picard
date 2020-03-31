@@ -1,4 +1,4 @@
-# Docker container for MusicBrainz Picard
+# mikenye/picard
 
 Docker container for MusicBrainz Picard
 
@@ -22,7 +22,8 @@ This container is based on the absolutely fantastic [jlesage/baseimage-gui](http
 and parameters should be adjusted to your need.
 
 Launch the Picard docker container with the following command:
-```
+
+```shell
 docker run -d \
     --name=picard \
     -p 5800:5800 \
@@ -32,14 +33,15 @@ docker run -d \
 ```
 
 Where:
-  - `/path/to/config`: This is where the application stores its configuration, log and any files needing persistency.
-  - `/path/to/music`: This location contains music files for Picard to operate on.
+
+* `/path/to/config`: This is where the application stores its configuration, log and any files needing persistency.
+* `/path/to/music`: This location contains music files for Picard to operate on.
 
 Browse to `http://your-host-ip:5800` to access the Picard GUI. Your music will be located under `/storage`.
 
 ## Usage
 
-```
+```shell
 docker run [-d] \
     --name=picard \
     [-e <VARIABLE_NAME>=<VALUE>]... \
@@ -47,6 +49,7 @@ docker run [-d] \
     [-p <HOST_PORT>:<CONTAINER_PORT>]... \
     mikenye/picard
 ```
+
 | Parameter | Description |
 |-----------|-------------|
 | -d        | Run the container in background.  If not set, the container runs in foreground. |
@@ -65,7 +68,7 @@ of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 |`USER_ID`| ID of the user the application runs as.  See [User/Group IDs](#usergroup-ids) to better understand when this should be set. | `1000` |
 |`GROUP_ID`| ID of the group the application runs as.  See [User/Group IDs](#usergroup-ids) to better understand when this should be set. | `1000` |
 |`SUP_GROUP_IDS`| Comma-separated list of supplementary group IDs of the application. | (unset) |
-|`UMASK`| Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.  By default, this variable is not set and the default umask of `022` is used, meaning that newly created files are readable by everyone, but only writable by the owner. See the following online umask calculator: http://wintelguy.com/umask-calc.pl | (unset) |
+|`UMASK`| Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.  By default, this variable is not set and the default umask of `022` is used, meaning that newly created files are readable by everyone, but only writable by the owner. See the following online umask calculator: <http://wintelguy.com/umask-calc.pl> | (unset) |
 |`TZ`| [TimeZone] of the container.  Timezone can also be set by mapping `/etc/localtime` between the host and the container. | `Etc/UTC` |
 |`KEEP_APP_RUNNING`| When set to `1`, the application will be automatically restarted if it crashes or if user quits it. | `0` |
 |`APP_NICENESS`| Priority at which the application should run.  A niceness value of -20 is the highest priority and 19 is the lowest priority.  By default, niceness is not set, meaning that the default niceness of 0 is used.  **NOTE**: A negative niceness (priority increase) requires additional permissions.  In this case, the container should be run with the docker option `--cap-add=SYS_NICE`. | (unset) |
@@ -111,11 +114,11 @@ parameter(s) of an existing container.  The generic idea is to destroy and
 re-create the container:
 
   1. Stop the container (if it is running):
-```
+```shell
 docker stop picard
 ```
   2. Remove the container:
-```
+```shell
 docker rm picard
 ```
   3. Create/start the container using the `docker run` command, by adjusting
@@ -152,15 +155,15 @@ If the system on which the container runs doesn't provide a way to easily update
 the Docker image, the following steps can be followed:
 
   1. Fetch the latest image:
-```
+```shell
 docker pull mikenye/picard
 ```
   2. Stop the container:
-```
+```shell
 docker stop picard
 ```
   3. Remove the container:
-```
+```shell
 docker rm picard
 ```
   4. Start the container using the `docker run` command.
@@ -180,10 +183,13 @@ This is done by passing the user ID and group ID to the container via the
 To find the right IDs to use, issue the following command on the host, with the
 user owning the data volume on the host:
 
-    id <username>
+```shell
+id <username>
+```
 
 Which gives an output like this one:
-```
+
+```text
 uid=1000(myuser) gid=1000(myuser) groups=1000(myuser),4(adm),24(cdrom),27(sudo),46(plugdev),113(lpadmin)
 ```
 
@@ -195,13 +201,15 @@ be given the container.
 Assuming that container's ports are mapped to the same host's ports, the
 graphical interface of the application can be accessed via:
 
-  * A web browser:
-```
+* A web browser:
+  
+```text
 http://<HOST IP ADDR>:5800
 ```
 
-  * Any VNC client:
-```
+* Any VNC client:
+
+```text
 <HOST IP ADDR>:5900
 ```
 
@@ -245,14 +253,16 @@ restarted when changes are detected.
 
 To restrict access to your application, a password can be specified.  This can
 be done via two methods:
-  * By using the `VNC_PASSWORD` environment variable.
-  * By creating a `.vncpass_clear` file at the root of the `/config` volume.
-    This file should contains the password in clear-text.  During the container
-    startup, content of the file is obfuscated and moved to `.vncpass`.
+
+* By using the `VNC_PASSWORD` environment variable.
+* By creating a `.vncpass_clear` file at the root of the `/config` volume.
+  This file should contains the password in clear-text.  During the container
+  startup, content of the file is obfuscated and moved to `.vncpass`.
 
 The level of security provided by the VNC password depends on two things:
-  * The type of communication channel (encrypted/unencrypted).
-  * How secure access to the host is.
+
+* The type of communication channel (encrypted/unencrypted).
+* How secure access to the host is.
 
 When using a VNC password, it is highly desirable to enable the secure
 connection to prevent sending the password in clear over an unencrypted channel.
@@ -266,7 +276,7 @@ characters beyhond the limit are ignored.
 
 To get shell access to a the running container, execute the following command:
 
-```
+```shell
 docker exec -ti picard bash
 ```
 
@@ -280,13 +290,15 @@ access to one or more device can be granted with the `--device DEV` parameter.
 Optical drives usually have `/dev/srX` as device.  For example, the first drive
 is `/dev/sr0`, the second `/dev/sr1`, and so on.  To allow Picard to access
 the first drive, this parameter is needed:
-```
+
+```shell
 --device /dev/sr0
 ```
 
 To easily find devices of optical drives, start the container and look at its
 log for messages similar to these ones:
-```
+
+```text
 ...
 [cont-init.d] 95-check-optical-drive.sh: executing...
 [cont-init.d] 95-check-optical-drive.sh: looking for usable optical drives...
