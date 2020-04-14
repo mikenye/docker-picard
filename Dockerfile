@@ -13,7 +13,7 @@ RUN set -x && \
     mkdir -p /config/xdg/config && \
     mkdir -p /usr/local/share/applications && \
     update-desktop-database -v && \
-    #xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop && \
+    xdg-settings set default-web-browser chromium-browser.desktop && \
     update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/chromium-browser 200 && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get update && \
