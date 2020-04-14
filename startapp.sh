@@ -3,12 +3,10 @@
 
 set -xe
 
-export HOME=/config
+HOME=/config
+export HOME
 
-# Set default browser
-#firefox -setDefaultBrowser
-#
-#PROFILEDIR=$(cat /config/.mozilla/firefox/profiles.ini | grep Path= | grep .default-release | cut -d "=" -f 2)
-#PROFILEPATH="/config/.mozilla/firefox/${PROFILEDIR}"
+# Unlock Chromium profile
+rm -rf /config/xdg/config/chromium/Singleton*
 
-/usr/bin/picard -N
+/usr/bin/picard

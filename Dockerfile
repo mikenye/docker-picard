@@ -3,11 +3,14 @@ FROM jlesage/baseimage-gui:ubuntu-18.04
 RUN set -x && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        firefox \
+        chromium-browser \
         fonts-takao \
         fonts-takao-mincho \
         locales \
         software-properties-common \
+        wget \
+        ca-certificates \
+        xdg-utils \
         && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get update && \
@@ -17,7 +20,7 @@ RUN set -x && \
     locale-gen en_US.UTF-8 && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
-    update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/firefox 200 && \
+    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox/g' /usr/share/applications/chromium-browser.desktop && \
     echo "========== Clean-up ==========" && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
