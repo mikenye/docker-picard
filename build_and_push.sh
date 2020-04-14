@@ -1,20 +1,19 @@
-#!/bin/sh
+#!/usr/bin/env sh
+#shellcheck shell=sh
 
-#VERSION=`picard -V | tr -s " " | cut -d " " -f 2 | tr -d ","`
-#ARCH=`uname -m`
-IMAGE=mikenye/picard
+REPO=mikenye
+IMAGE=picard
 
 # Build
-docker image rm ${IMAGE}:builder
+docker image rm ${REPO}/${IMAGE}:builder
 docker image rm jlesage/baseimage-gui:ubuntu-18.04
-docker build -f Dockerfile -t ${IMAGE}:builder .
+docker build -f Dockerfile -t ${REPO}/${IMAGE}:builder .
 
 # Get version
-VERSION=`docker run --rm --entrypoint picard mikenye/picard:builder -V | tail -1 | tr -s " " | cut -d " " -f 2 | tr -d ","`
+VERSION=$(docker run --rm --entrypoint picard ${REPO}/${IMAGE}:builder -V | tail -1 | tr -s " " | cut -d " " -f 2 | tr -d ",")
 
-docker tag ${IMAGE}:builder ${IMAGE}:${VERSION}
-docker tag ${IMAGE}:builder ${IMAGE}:latest
+docker tag ${REPO}/${IMAGE}:builder ${REPO}/${IMAGE}:${VERSION}
+docker tag ${REPO}/${IMAGE}:builder ${REPO}/${IMAGE}:latest
 
-docker push ${IMAGE}:${VERSION}
-docker push ${IMAGE}:latest
-
+docker push ${REPO}/${IMAGE}:${VERSION}
+docker push ${REPO}/${IMAGE}:latest
