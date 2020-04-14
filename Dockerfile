@@ -12,9 +12,9 @@ RUN set -x && \
         && \
     mkdir -p /config/xdg/config && \
     mkdir -p /usr/local/share/applications && \
-    sed 's/\<Exec=chromium-browser\>/& --no-sandbox/' /usr/share/applications/chromium-browser.desktop > /usr/share/applications/chromium-browser-no-sandbox.desktop && \
     update-desktop-database -v && \
-    xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop && \
+    #xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop && \
+    update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/chromium-browser 200 && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get update && \
     apt-get install -y \
@@ -22,7 +22,7 @@ RUN set -x && \
         && \
     echo "#!/bin/sh" >> /startapp.sh && \
     echo "export HOME=/config" >> /startapp.sh && \
-    echo "xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop" >> /startapp.sh && \
+    #echo "xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop" >> /startapp.sh && \
     echo "/usr/bin/picard -N" >> /startapp.sh && \
     chmod a+x /startapp.sh && \
     locale-gen en_US.UTF-8 && \
