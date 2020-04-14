@@ -29,7 +29,6 @@ RUN set -x && \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_NAME="MusicBrainz Picard" \
-    BROWSER="chromium-browser" \
     LC_ALL="en_US.UTF-8" \
     LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8"
