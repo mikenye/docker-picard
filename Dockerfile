@@ -3,6 +3,7 @@ FROM jlesage/baseimage-gui:ubuntu-18.04
 RUN set -x && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
+        dbus-x11 \
         firefox \
         fonts-takao \
         fonts-takao-mincho \
