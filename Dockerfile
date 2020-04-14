@@ -3,34 +3,26 @@ FROM jlesage/baseimage-gui:ubuntu-18.04
 RUN set -x && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        chromium-browser \
-        desktop-file-utils \
+        firefox \
         fonts-takao \
         fonts-takao-mincho \
         locales \
         software-properties-common \
         && \
-    mkdir -p /config/xdg/config && \
-    mkdir -p /usr/local/share/applications && \
-    update-desktop-database -v && \
-    #xdg-settings set default-web-browser chromium-browser.desktop && \
-    update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/chromium-browser 200 && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get update && \
     apt-get install -y \
         picard \
         && \
-    echo "#!/bin/sh" >> /startapp.sh && \
-    echo "export HOME=/config" >> /startapp.sh && \
-    echo "xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop" >> /startapp.sh && \
-    echo "/usr/bin/picard -N" >> /startapp.sh && \
-    chmod a+x /startapp.sh && \
     locale-gen en_US.UTF-8 && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
+    update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/firefox 200 && \
     echo "========== Clean-up ==========" && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
+
+COPY startapp.sh /startapp.sh
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
