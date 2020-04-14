@@ -10,6 +10,8 @@ RUN set -x && \
         locales \
         software-properties-common \
         && \
+    mkdir -p /config/xdg/config && \
+    mkdir -p /usr/local/share/applications && \
     sed 's/\<Exec=chromium-browser\>/& --no-sandbox/' /usr/share/applications/chromium-browser.desktop > /usr/share/applications/chromium-browser-no-sandbox.desktop && \
     update-desktop-database -v && \
     xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop && \
