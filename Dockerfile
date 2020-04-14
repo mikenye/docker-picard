@@ -22,6 +22,7 @@ RUN set -x && \
         && \
     echo "#!/bin/sh" >> /startapp.sh && \
     echo "export HOME=/config" >> /startapp.sh && \
+    echo "xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop" >> /startapp.sh && \
     echo "/usr/bin/picard -N" >> /startapp.sh && \
     chmod a+x /startapp.sh && \
     locale-gen en_US.UTF-8 && \
