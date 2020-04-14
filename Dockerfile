@@ -1,13 +1,19 @@
 FROM jlesage/baseimage-gui:ubuntu-18.04
 
 RUN set -x && \
-    apt-get update -y && \
-    echo "========== Japanese font support (github issue #2) ==========" && \
-    apt-get install -y fonts-takao fonts-takao-mincho && \
-    echo "=============================================================" && \
-    apt-get install -y locales software-properties-common && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        firefox \
+        fonts-takao \
+        fonts-takao-mincho \
+        locales \
+        software-properties-common \
+        && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
-    apt-get install -y picard && \
+    apt-get update && \
+    apt-get install -y \
+        picard \
+        && \
     echo "#!/bin/sh" >> /startapp.sh && \
     echo "export HOME=/config" >> /startapp.sh && \
     echo "/usr/bin/picard -N" >> /startapp.sh && \
