@@ -11,6 +11,7 @@ RUN set -x && \
         software-properties-common \
         && \
     sed 's/\<Exec=chromium-browser\>/& --no-sandbox/' /usr/share/applications/chromium-browser.desktop > /usr/share/applications/chromium-browser-no-sandbox.desktop && \
+    update-desktop-database -v && \
     xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop && \
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get update && \
