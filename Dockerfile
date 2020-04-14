@@ -4,11 +4,14 @@ RUN set -x && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         chromium-browser \
+        desktop-file-utils \
         fonts-takao \
         fonts-takao-mincho \
         locales \
         software-properties-common \
         && \
+    sed 's/\<Exec=chromium-browser\>/& --no-sandbox/' /usr/share/applications/chromium-browser.desktop > /usr/share/applications/chromium-browser-no-sandbox.desktop && \
+    xdg-settings set default-web-browser chromium-browser-no-sandbox.desktop && /
     add-apt-repository -y ppa:musicbrainz-developers/stable && \
     apt-get update && \
     apt-get install -y \
