@@ -308,6 +308,8 @@ log for messages similar to these ones:
 ...
 ```
 
-## Support or Contact
+## Getting Help
 
 Having troubles with the container or have questions?  Please [create a new issue](https://github.com/mikenye/docker-picard/issues).
+
+I also have a [Discord channel](https://discord.gg/zpxkMrY), feel free to [join](https://discord.gg/zpxkMrY) and converse.
