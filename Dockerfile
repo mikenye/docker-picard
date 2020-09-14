@@ -24,6 +24,13 @@ RUN set -x && \
         python-aubio \
         aubio-tools \
         flac \
+        vorbisgain \
+        wavpack \
+        && \
+    add-apt-repository -y ppa:flexiondotorg/audio && \
+    apt-get update && \
+    apt-get install -y \
+        mp3gain \
         && \
     echo "========== Update OpenBox Config ==========" && \
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
