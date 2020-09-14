@@ -23,6 +23,7 @@ RUN set -x && \
         python3-aubio \
         python-aubio \
         aubio-tools \
+        flac \
         && \
     echo "========== Update OpenBox Config ==========" && \
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
