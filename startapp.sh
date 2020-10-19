@@ -9,4 +9,4 @@ export HOME
 # Unlock Chromium profile
 rm -rf /config/xdg/config/chromium/Singleton*
 
-/usr/bin/picard
+/usr/local/bin/picard
