@@ -42,6 +42,14 @@ RUN set -x && \
     TEMP_PACKAGES+=(python3-dev) && \
     TEMP_PACKAGES+=(libdiscid-dev) && \
     KEPT_PACKAGES+=(libdiscid0) && \
+    KEPT_PACKAGES+=(libxcb-icccm4) && \
+    KEPT_PACKAGES+=(libxcb-keysyms1) && \
+    KEPT_PACKAGES+=(libxcb-randr0) && \
+    KEPT_PACKAGES+=(libxcb-render-util0) && \
+    KEPT_PACKAGES+=(libxcb-xinerama0) && \
+    KEPT_PACKAGES+=(libxcb-image0) && \
+    KEPT_PACKAGES+=(libxcb-xkb1) && \
+    KEPT_PACKAGES+=(libxkbcommon-x11-0) && \
     KEPT_PACKAGES+=(gettext) && \
     KEPT_PACKAGES+=(locales) && \
     KEPT_PACKAGES+=(chromium-browser) && \
@@ -49,7 +57,6 @@ RUN set -x && \
     KEPT_PACKAGES+=(fonts-takao-mincho) && \
     KEPT_PACKAGES+=(wget) && \
     KEPT_PACKAGES+=(ca-certificates) && \
-    # xdg-utils
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
     KEPT_PACKAGES+=(python-aubio) && \
@@ -96,14 +103,19 @@ RUN set -x && \
     BRANCH_PICARD=$(git tag --sort="-creatordate" | head -1) && \
     git checkout "tags/${BRANCH_PICARD}" && \
     # Fix for: https://stackoverflow.com/questions/59768179/pip-raise-filenotfounderror-errno-2-no-such-file-or-directory-tmp-pip-inst?noredirect=1&lq=1
-    sed -i 's/PyQt5>=5.7.1/PyQt5==5.14/g' ./requirements.txt && \
+    sed -i 's/PyQt5>=5.7.1/PyQt5>=5.11/g' ./requirements.txt && \
     # Install Picard requirements
+    pip3 install --upgrade pip && \
     pip3 install -r requirements.txt && \
     pip3 install discid python-libdiscid && \
     locale-gen en_US.UTF-8 && \
     export LC_ALL=C.UTF-8 && \
     # Build & install Picard
-    pip3 install . && \
+    python3 setup.py build && \
+    python3 setup.py build_ext -i && \
+    python3 setup.py build_locales -i && \
+    python3 setup.py test && \
+    python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
     if picard -v 2>&1 | grep -c error; then exit 1; fi && \
