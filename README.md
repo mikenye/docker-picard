@@ -113,15 +113,19 @@ The following steps describe the method used to add, remove or update
 parameter(s) of an existing container.  The generic idea is to destroy and
 re-create the container:
 
-  1. Stop the container (if it is running):
+1. Stop the container (if it is running):
+
 ```shell
 docker stop picard
 ```
-  2. Remove the container:
+
+2. Remove the container:
+
 ```shell
 docker rm picard
 ```
-  3. Create/start the container using the `docker run` command, by adjusting
+
+3. Create/start the container using the `docker run` command, by adjusting
      parameters as needed.
 
 **NOTE**: Since all application's data is saved under the `/config` container
@@ -154,19 +158,25 @@ services:
 If the system on which the container runs doesn't provide a way to easily update
 the Docker image, the following steps can be followed:
 
-  1. Fetch the latest image:
+1. Fetch the latest image:
+
 ```shell
 docker pull mikenye/picard
 ```
-  2. Stop the container:
+
+2. Stop the container:
+
 ```shell
 docker stop picard
 ```
-  3. Remove the container:
+
+3. Remove the container:
+
 ```shell
 docker rm picard
 ```
-  4. Start the container using the `docker run` command.
+
+4. Start the container using the `docker run` command.
 
 ## User/Group IDs
 
@@ -202,7 +212,7 @@ Assuming that container's ports are mapped to the same host's ports, the
 graphical interface of the application can be accessed via:
 
 * A web browser:
-  
+
 ```text
 http://<HOST IP ADDR>:5800
 ```
