@@ -171,6 +171,7 @@ docker stop picard
 ```
 
 3. Remove the container:
+
 ```shell
 docker rm picard
 ```
@@ -211,7 +212,7 @@ Assuming that container's ports are mapped to the same host's ports, the
 graphical interface of the application can be accessed via:
 
 * A web browser:
-  
+
 ```text
 http://<HOST IP ADDR>:5800
 ```
