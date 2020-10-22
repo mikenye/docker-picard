@@ -125,7 +125,7 @@ docker stop picard
 docker rm picard
 ```
 
-1. Create/start the container using the `docker run` command, by adjusting
+3. Create/start the container using the `docker run` command, by adjusting
      parameters as needed.
 
 **NOTE**: Since all application's data is saved under the `/config` container
