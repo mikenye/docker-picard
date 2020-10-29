@@ -42,6 +42,8 @@ RUN set -x && \
     TEMP_PACKAGES+=(python3-dev) && \
     TEMP_PACKAGES+=(libdiscid-dev) && \
     KEPT_PACKAGES+=(libdiscid0) && \
+    KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
+    KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
     KEPT_PACKAGES+=(libxcb-icccm4) && \
     KEPT_PACKAGES+=(libxcb-keysyms1) && \
     KEPT_PACKAGES+=(libxcb-randr0) && \
