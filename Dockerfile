@@ -62,8 +62,7 @@ RUN set -x && \
     KEPT_PACKAGES+=(gstreamer1.0-libav) && \
     KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
     KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
-    KEPT_PACKAGES+=(libavcodec-extra) && \
-    KEPT_PACKAGES+=(libavcodec-extra57) && \
+    KEPT_PACKATES+=(libavcodec57) && \
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
     KEPT_PACKAGES+=(python-aubio) && \
