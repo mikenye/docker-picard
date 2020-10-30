@@ -42,8 +42,6 @@ RUN set -x && \
     TEMP_PACKAGES+=(python3-dev) && \
     TEMP_PACKAGES+=(libdiscid-dev) && \
     KEPT_PACKAGES+=(libdiscid0) && \
-    KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
-    KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
     KEPT_PACKAGES+=(libxcb-icccm4) && \
     KEPT_PACKAGES+=(libxcb-keysyms1) && \
     KEPT_PACKAGES+=(libxcb-randr0) && \
@@ -59,6 +57,12 @@ RUN set -x && \
     KEPT_PACKAGES+=(fonts-takao-mincho) && \
     KEPT_PACKAGES+=(wget) && \
     KEPT_PACKAGES+=(ca-certificates) && \
+    # Install Picard Media Player dependencies
+    KEPT_PACKAGES+=(gstreamer1.0-plugins-good) && \
+    KEPT_PACKAGES+=(gstreamer1.0-libav) && \
+    KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
+    KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
+    KEPT_PACKAGES+=(libavcodec-extra) && \
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
     KEPT_PACKAGES+=(python-aubio) && \
