@@ -130,7 +130,6 @@ RUN set -x && \
     if picard -v 2>&1 | grep -c error; then exit 1; fi && \
     picard -v | cut -d ' ' -f 2- >> /VERSIONS && \
     popd && \
-    chmod a+w /etc/machine-id && \
     # Update OpenBox config
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
     sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
@@ -141,7 +140,7 @@ RUN set -x && \
     apt-get autoremove -y && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/*
 
-COPY startapp.sh /startapp.sh
+COPY rootfs/ /
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
