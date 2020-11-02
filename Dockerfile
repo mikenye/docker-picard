@@ -63,6 +63,8 @@ RUN set -x && \
     KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
     KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
     KEPT_PACKATES+=(libavcodec57) && \
+    # Install Chrome dependencies
+    KEPT_PACKAGES+=(dbus-x11) && \
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
     KEPT_PACKAGES+=(python-aubio) && \
