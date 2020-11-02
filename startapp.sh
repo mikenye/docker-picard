@@ -11,7 +11,7 @@ export HOME
 rm -rf /config/xdg/config/chromium/Singleton*
 
 # Set machine-id
-uuidgen -t > /etc/machine-id
+uuidgen -t | tr -d "-" > /etc/machine-id
 
 # Launch picard
 /usr/local/bin/picard
