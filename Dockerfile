@@ -133,7 +133,7 @@ RUN set -x && \
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
     sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
     # Update chromium-browser config
-    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage/g' /usr/share/applications/chromium-browser.desktop && \
+    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu/g' /usr/share/applications/chromium-browser.desktop && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
