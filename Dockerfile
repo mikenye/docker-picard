@@ -63,6 +63,9 @@ RUN set -x && \
     KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
     KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
     KEPT_PACKATES+=(libavcodec57) && \
+    # Install Chrome dependencies
+    KEPT_PACKAGES+=(dbus-x11) && \
+    KEPT_PACKAGES+=(uuid-runtime) && \
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
     KEPT_PACKAGES+=(python-aubio) && \
@@ -131,13 +134,13 @@ RUN set -x && \
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
     sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
     # Update chromium-browser config
-    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox/g' /usr/share/applications/chromium-browser.desktop && \
+    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-software-rasterizer --log-level=3/g' /usr/share/applications/chromium-browser.desktop && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/*
 
-COPY startapp.sh /startapp.sh
+COPY rootfs/ /
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
