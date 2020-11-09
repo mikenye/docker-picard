@@ -135,6 +135,8 @@ RUN set -x && \
     sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
     # Update chromium-browser config
     sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-software-rasterizer --log-level=3/g' /usr/share/applications/chromium-browser.desktop && \
+    # Symlink for fpcalc (issue #32)
+    ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
