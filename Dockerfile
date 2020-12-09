@@ -116,9 +116,9 @@ RUN set -x && \
     # Fix for: https://stackoverflow.com/questions/59768179/pip-raise-filenotfounderror-errno-2-no-such-file-or-directory-tmp-pip-inst?noredirect=1&lq=1
     sed -i 's/PyQt5>=5.7.1/PyQt5>=5.11/g' ./requirements.txt && \
     # Install Picard requirements
-    pip3 install --upgrade pip && \
-    pip3 install -r requirements.txt && \
-    pip3 install discid python-libdiscid && \
+    pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 install --no-cache-dir discid python-libdiscid && \
     locale-gen en_US.UTF-8 && \
     export LC_ALL=C.UTF-8 && \
     # Build & install Picard
