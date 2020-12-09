@@ -57,6 +57,8 @@ RUN set -x && \
     KEPT_PACKAGES+=(fonts-takao-mincho) && \
     KEPT_PACKAGES+=(wget) && \
     KEPT_PACKAGES+=(ca-certificates) && \
+    # Install Picard optical drive dependencies
+    KEPT_PACKAGES+=(lsscsi) && \
     # Install Picard Media Player dependencies
     KEPT_PACKAGES+=(gstreamer1.0-plugins-good) && \
     KEPT_PACKAGES+=(gstreamer1.0-libav) && \
@@ -137,6 +139,9 @@ RUN set -x && \
     sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-software-rasterizer --log-level=3/g' /usr/share/applications/chromium-browser.desktop && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
+    # Add optical drive script from jlesage/docker-handbrake
+    git clone https://github.com/jlesage/docker-handbrake.git /src/docker-handbrake && \
+    cp -v /src/docker-handbrake/rootfs/etc/cont-init.d/95-check-optical-drive.sh /etc/cont-init.d/95-check-optical-drive.sh && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
