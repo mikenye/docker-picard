@@ -6,6 +6,8 @@ ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+COPY rootfs/ /
+
 RUN set -x && \
     # Define package arrays
     # TEMP_PACKAGES are packages that will only be present in the image during container build
@@ -146,8 +148,6 @@ RUN set -x && \
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/*
-
-COPY rootfs/ /
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
