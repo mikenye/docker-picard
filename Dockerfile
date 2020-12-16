@@ -147,7 +147,9 @@ RUN set -x && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
-    rm -rf /src/* /tmp/* /var/lib/apt/lists/*
+    rm -rf /src/* /tmp/* /var/lib/apt/lists/* && \
+    # Capture picard version
+    picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
