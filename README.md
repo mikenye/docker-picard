@@ -1,5 +1,10 @@
 # mikenye/picard
 
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/mikenye/docker-picard/Deploy%20to%20Docker%20Hub)](https://github.com/mikenye/docker-picard/actions?query=workflow%3A%22Deploy+to+Docker+Hub%22)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mikenye/picard.svg)](https://hub.docker.com/r/mikenye/picard)
+[![Docker Image Size (tag)](https://img.shields.io/docker/image-size/mikenye/picard/latest)](https://hub.docker.com/r/mikenye/picard)
+[![Discord](https://img.shields.io/discord/734090820684349521)](https://discord.gg/sTf9uYF)
+
 Docker container for MusicBrainz Picard
 
 The GUI of the application is accessed through a modern web browser (no installation or configuration needed on client side) or via any VNC client.
