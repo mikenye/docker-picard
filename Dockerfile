@@ -1,3 +1,12 @@
+FROM golang:1 AS trivy_builder
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN set -x && \
+    git clone --depth=1 https://github.com/aquasecurity/trivy /src/trivy && \
+    pushd /src/trivy/cmd/trivy && \
+    go build
+
 FROM jlesage/baseimage-gui:ubuntu-18.04
 
 ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
@@ -7,6 +16,7 @@ ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 COPY rootfs/ /
+COPY --from=trivy_builder /src/trivy/cmd/trivy/trivy /src/trivy
 
 RUN set -x && \
     # Define package arrays
@@ -18,9 +28,9 @@ RUN set -x && \
     TEMP_PACKAGES+=(software-properties-common) && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        ${KEPT_PACKAGES[@]} \
-        ${TEMP_PACKAGES[@]} \
-        && \
+      ${KEPT_PACKAGES[@]} \
+      ${TEMP_PACKAGES[@]} \
+      && \
     # Install pip to allow install of Picard dependencies
     TEMP_PACKAGES+=(python3-pip) && \
     TEMP_PACKAGES+=(python3-setuptools) && \
@@ -79,12 +89,14 @@ RUN set -x && \
     KEPT_PACKAGES+=(wavpack) && \
     add-apt-repository -y ppa:flexiondotorg/audio && \
     KEPT_PACKAGES+=(mp3gain) && \
+    # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)
+    TEMP_PACKAGES+=(jq) && \
     # Install packages
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        ${KEPT_PACKAGES[@]} \
-        ${TEMP_PACKAGES[@]} \
-        && \
+      ${KEPT_PACKAGES[@]} \
+      ${TEMP_PACKAGES[@]} \
+      && \
     git config --global advice.detachedHead false && \
     # Clone googletest (required for build of Chromaprint)
     git clone "$URL_GOOGLETEST_REPO" /src/googletest && \
@@ -99,12 +111,12 @@ RUN set -x && \
     BRANCH_CHROMAPRINT=$(git tag --sort="-creatordate" | head -1) && \
     git checkout "tags/${BRANCH_CHROMAPRINT}" && \
     cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_TOOLS=ON \
-        -DBUILD_TESTS=ON \
-        -DGTEST_SOURCE_DIR=/src/googletest/googletest \
-        -DGTEST_INCLUDE_DIR=/src/googletest/googletest/include . \
-        && \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_TOOLS=ON \
+      -DBUILD_TESTS=ON \
+      -DGTEST_SOURCE_DIR=/src/googletest/googletest \
+      -DGTEST_INCLUDE_DIR=/src/googletest/googletest/include . \
+      && \
     make && \
     make check && \
     make install && \
@@ -118,9 +130,9 @@ RUN set -x && \
     # Fix for: https://stackoverflow.com/questions/59768179/pip-raise-filenotfounderror-errno-2-no-such-file-or-directory-tmp-pip-inst?noredirect=1&lq=1
     sed -i 's/PyQt5>=5.7.1/PyQt5>=5.11/g' ./requirements.txt && \
     # Install Picard requirements
-    pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir -r requirements.txt && \
-    pip3 install --no-cache-dir discid python-libdiscid && \
+    python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m pip install --no-cache-dir discid python-libdiscid && \
     locale-gen en_US.UTF-8 && \
     export LC_ALL=C.UTF-8 && \
     # Build & install Picard
@@ -144,10 +156,14 @@ RUN set -x && \
     # Add optical drive script from jlesage/docker-handbrake
     git clone https://github.com/jlesage/docker-handbrake.git /src/docker-handbrake && \
     cp -v /src/docker-handbrake/rootfs/etc/cont-init.d/95-check-optical-drive.sh /etc/cont-init.d/95-check-optical-drive.sh && \
+    # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)    
+    /src/trivy --cache-dir /tmp/trivy fs --vuln-type os -f json --ignore-unfixed --no-progress -o /tmp/trivy.out / && \
+    apt-get install -y --no-install-recommends $(jq .[].Vulnerabilities < /tmp/trivy.out | grep '"PkgName":' | tr -s ' ' | cut -d ':' -f 2 | tr -d ' ",' | uniq) && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/* && \
+    find /var/log -type f -exec truncate --size=0 {} \; && \
     # Capture picard version
     picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
 
