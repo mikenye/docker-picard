@@ -79,6 +79,10 @@ RUN set -x && \
     KEPT_PACKAGES+=(wavpack) && \
     add-apt-repository -y ppa:flexiondotorg/audio && \
     KEPT_PACKAGES+=(mp3gain) && \
+    # Sucurity updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)
+    KEPT_PACKAGES+=(libfreetype6) && \
+    KEPT_PACKAGES+=(libssl1.1) && \
+    KEPT_PACKAGES+=(openssl) && \
     # Install packages
     apt-get update && \
     apt-get install -y --no-install-recommends \
