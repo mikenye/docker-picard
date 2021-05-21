@@ -150,7 +150,7 @@ ports are part of the example.
 version: '3'
 services:
   picard:
-    build: .
+    image: mikenye/picard:latest
     ports:
       - "5800:5800"
     volumes:
