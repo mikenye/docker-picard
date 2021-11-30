@@ -141,7 +141,7 @@ RUN set -x && \
     python3 setup.py build && \
     python3 setup.py build_ext -i && \
     python3 setup.py build_locales -i && \
-    python3 setup.py test && \
+    # python3 setup.py test && \
     python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
@@ -167,9 +167,13 @@ RUN set -x && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/* && \
     find /var/log -type f -exec truncate --size=0 {} \; && \
     # Install Chinese Fonts
-    wget https://github.com/micmro/Stylify-Me/blob/master/.fonts/SimSun.ttf?raw=true -O /usr/share/fonts/SimSun.ttf && \
+    wget \
+      --progress=dot \
+      -O /usr/share/fonts/SimSun.ttf \
+      "https://github.com/micmro/Stylify-Me/blob/master/.fonts/SimSun.ttf?raw=true" && \
     fc-cache && \
     # Capture picard version
+    mkdir -p /tmp/run/user/app && \
     picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
 
 ENV APP_NAME="MusicBrainz Picard" \
