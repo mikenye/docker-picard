@@ -167,7 +167,10 @@ RUN set -x && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/* && \
     find /var/log -type f -exec truncate --size=0 {} \; && \
     # Install Chinese Fonts
-    wget https://github.com/micmro/Stylify-Me/blob/master/.fonts/SimSun.ttf?raw=true -O /usr/share/fonts/SimSun.ttf && \
+    wget \
+      --progress=dot \
+      -O /usr/share/fonts/SimSun.ttf \
+      "https://github.com/micmro/Stylify-Me/blob/master/.fonts/SimSun.ttf?raw=true" && \
     fc-cache && \
     # Capture picard version
     picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
