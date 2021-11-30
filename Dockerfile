@@ -173,6 +173,7 @@ RUN set -x && \
       "https://github.com/micmro/Stylify-Me/blob/master/.fonts/SimSun.ttf?raw=true" && \
     fc-cache && \
     # Capture picard version
+    mkdir -p /tmp/run/user/app && \
     picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
 
 ENV APP_NAME="MusicBrainz Picard" \
