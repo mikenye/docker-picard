@@ -141,7 +141,7 @@ RUN set -x && \
     python3 setup.py build && \
     python3 setup.py build_ext -i && \
     python3 setup.py build_locales -i && \
-    python3 setup.py test && \
+    # python3 setup.py test && \
     python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
