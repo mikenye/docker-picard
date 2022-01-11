@@ -103,16 +103,16 @@ RUN set -x && \
     # Clone googletest (required for build of Chromaprint)
     git clone "$URL_GOOGLETEST_REPO" /src/googletest && \
     pushd /src/googletest && \
-    # Pin chromaprint version to v1.4.3 due to https://github.com/acoustid/chromaprint/issues/107
-    # BRANCH_GOOGLETEST=$(git tag --sort="-creatordate" | grep 'release-' | head -1) && \
-    BRANCH_GOOGLETEST="v1.4.3" && \
+    BRANCH_GOOGLETEST=$(git tag --sort="-creatordate" | grep 'release-' | head -1) && \
     git checkout "tags/${BRANCH_GOOGLETEST}" && \
     echo "$BRANCH_GOOGLETEST" >> /VERSIONS && \
     popd && \
     # Clone Chromaprint repo & checkout latest version
     git clone "$URL_CHROMAPRINT_REPO" /src/chromaprint && \
     pushd /src/chromaprint && \
-    BRANCH_CHROMAPRINT=$(git tag --sort="-creatordate" | head -1) && \
+    # Pin chromaprint version to v1.4.3 due to https://github.com/acoustid/chromaprint/issues/107
+    # BRANCH_CHROMAPRINT=$(git tag --sort="-creatordate" | head -1) && \
+    BRANCH_CHROMAPRINT="v1.4.3" && \
     git checkout "tags/${BRANCH_CHROMAPRINT}" && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
