@@ -40,6 +40,7 @@ RUN set -x && \
     # Install build tools to allow building
     TEMP_PACKAGES+=(build-essential) && \
     TEMP_PACKAGES+=(cmake) && \
+    TEMP_PACKAGES+=(pkg-config) && \
     # Install Chromaprint dependencies
     KEPT_PACKAGES+=(ffmpeg) && \
     TEMP_PACKAGES+=(libswresample-dev) && \
@@ -110,7 +111,9 @@ RUN set -x && \
     # Clone Chromaprint repo & checkout latest version
     git clone "$URL_CHROMAPRINT_REPO" /src/chromaprint && \
     pushd /src/chromaprint && \
-    BRANCH_CHROMAPRINT=$(git tag --sort="-creatordate" | head -1) && \
+    # Pin chromaprint version to v1.4.3 due to https://github.com/acoustid/chromaprint/issues/107
+    # BRANCH_CHROMAPRINT=$(git tag --sort="-creatordate" | head -1) && \
+    BRANCH_CHROMAPRINT="v1.4.3" && \
     git checkout "tags/${BRANCH_CHROMAPRINT}" && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -161,6 +164,17 @@ RUN set -x && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)    
     /src/trivy --cache-dir /tmp/trivy fs --vuln-type os -f json --ignore-unfixed --no-progress -o /tmp/trivy.out / && \
     apt-get install -y --no-install-recommends $(jq .[].Vulnerabilities < /tmp/trivy.out | grep '"PkgName":' | tr -s ' ' | cut -d ':' -f 2 | tr -d ' ",' | uniq) && \
+    # Install streaming_extractor_music
+    wget \
+      -O /tmp/essentia-extractor-linux-x86_64.tar.gz \
+      --progress=dot:mega \
+      'http://ftp.acousticbrainz.org/pub/acousticbrainz/essentia-extractor-v2.1_beta2-linux-x86_64.tar.gz' \
+      && \
+    tar \
+      xzvf \
+      /tmp/essentia-extractor-linux-x86_64.tar.gz \
+      -C /usr/local/sbin \
+      && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
