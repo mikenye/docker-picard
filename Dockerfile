@@ -40,6 +40,7 @@ RUN set -x && \
     # Install build tools to allow building
     TEMP_PACKAGES+=(build-essential) && \
     TEMP_PACKAGES+=(cmake) && \
+    TEMP_PACKAGES+=(pkg-config) && \
     # Install Chromaprint dependencies
     KEPT_PACKAGES+=(ffmpeg) && \
     TEMP_PACKAGES+=(libswresample-dev) && \
@@ -93,6 +94,22 @@ RUN set -x && \
     KEPT_PACKAGES+=(mp3gain) && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)
     TEMP_PACKAGES+=(jq) && \
+    # # Install taglib dependencies
+    # KEPT_PACKAGES+=(zlib1g) && \
+    # TEMP_PACKAGES+=(zlib1g-dev) && \
+    # # Install gaia2 dependencies
+    # TEMP_PACKAGES+=(libeigen3-dev) && \
+    # TEMP_PACKAGES+=(libqt4-dev) && \
+    # TEMP_PACKAGES+=(qt4-qmake) && \
+    # TEMP_PACKAGES+=(swig) && \
+    # # Install essentia dependencies
+    # KEPT_PACKAGES+=(libyaml-0-2) && \
+    # TEMP_PACKAGES+=(libyaml-dev) && \
+    # KEPT_PACKAGES+=(libsamplerate0) && \
+    # TEMP_PACKAGES+=(libsamplerate0-dev) && \
+    # TEMP_PACKAGES+=(python2.7-dev) && \
+    # KEPT_PACKAGES+=(libavresample3) && \
+    # TEMP_PACKAGES+=(libavresample-dev) && \
     # Install packages
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -163,6 +180,30 @@ RUN set -x && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)    
     /src/trivy --cache-dir /tmp/trivy fs --vuln-type os -f json --ignore-unfixed --no-progress -o /tmp/trivy.out / && \
     apt-get install -y --no-install-recommends $(jq .[].Vulnerabilities < /tmp/trivy.out | grep '"PkgName":' | tr -s ' ' | cut -d ':' -f 2 | tr -d ' ",' | uniq) && \
+    # # Install taglib (required for Essentia)
+    # git clone https://github.com/taglib/taglib.git /src/taglib && \
+    # pushd /src/taglib && \
+    # BRANCH_TAGLIB=$(git tag --sort="-creatordate" | grep -v 'beta' | grep -v 'rc' | head -1) && \
+    # git checkout "tags/${BRANCH_TAGLIB}" && \
+    # cmake \
+    #   -DCMAKE_INSTALL_PREFIX=/usr/local \
+    #   -DCMAKE_BUILD_TYPE=Release \
+    #   . \
+    #   && \
+    # make && \
+    # make install && \
+    # popd && \
+    # # Install gaia2 (optional for Essentia)
+    # git clone https://github.com/MTG/gaia.git /src/gaia2 && \
+    # pushd /src/gaia2 && \
+    # BRANCH_GAIA2=$(git tag --sort="-creatordate" | grep -v 'beta' | grep -v 'rc' | head -1) && \
+    # git checkout "tags/${BRANCH_GAIA2}" && \
+    # ./waf configure --with-python-bindings && \
+    # ./waf && \
+    # ./waf install && \
+    # popd && \
+    # Install Essentia
+    pip install essentia && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
