@@ -203,7 +203,17 @@ RUN set -x && \
     # ./waf install && \
     # popd && \
     # Install Essentia
-    pip install essentia && \
+    # pip install essentia && \
+    # Install essentia-extractor
+    wget \
+      -O /tmp/essentia-extractor-linux-x86_64.tar.gz \
+      'http://ftp.acousticbrainz.org/pub/acousticbrainz/essentia-extractor-v2.1_beta2-linux-x86_64.tar.gz' \
+      && \
+    tar \
+      xzvf \
+      /tmp/essentia-extractor-linux-x86_64.tar.gz \
+      -C /usr/local/sbin \
+      && \
     # Clean-up
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
