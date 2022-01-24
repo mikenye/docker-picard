@@ -207,6 +207,7 @@ RUN set -x && \
     # Install essentia-extractor
     wget \
       -O /tmp/essentia-extractor-linux-x86_64.tar.gz \
+      --progress=dot:mega \
       'http://ftp.acousticbrainz.org/pub/acousticbrainz/essentia-extractor-v2.1_beta2-linux-x86_64.tar.gz' \
       && \
     tar \
