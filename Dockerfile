@@ -184,7 +184,7 @@ RUN set -x && \
     wget \
       --progress=dot \
       -O /usr/share/fonts/SimSun.ttf \
-      "https://github.com/micmro/Stylify-Me/blob/master/.fonts/SimSun.ttf?raw=true" && \
+      "https://github.com/micmro/Stylify-Me/blob/main/.fonts/SimSun.ttf?raw=true" && \
     fc-cache && \
     # Capture picard version
     mkdir -p /tmp/run/user/app && \
