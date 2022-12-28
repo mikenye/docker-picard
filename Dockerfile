@@ -7,6 +7,57 @@ RUN set -x && \
     pushd /src/trivy/cmd/trivy && \
     go build
 
+FROM ubuntu:22.04 AS rsgain_builder
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN set -x && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y \
+      build-essential \
+      ca-certificates \
+      cmake \
+      git \
+      pkg-config \
+      # taglib dependencies
+      libcppunit-dev \
+      zlib1g-dev \
+      # rsgain dependencies
+      libebur128-dev \
+      libavformat-dev \
+      libavcodec-dev \
+      libswresample-dev \
+      libavutil-dev \
+      libfmt-dev \
+      libinih-dev \
+      && \
+    # Get latest taglib version from tags
+    TAGLIB_TAG=$(git -c 'versionsort.suffix=-' ls-remote --tags https://github.com/taglib/taglib.git | tr -s ' ' | cut -d '/' -f 3 | grep -vi 'rc' | grep -vi 'beta' | grep -vi '\^{}' | sort -V | tail -1) && \
+    # Clone taglib repo
+    git clone --depth 1 --branch "$TAGLIB_TAG" https://github.com/taglib/taglib.git /src/taglib && \
+    # Build taglib
+    mkdir -p /src/taglib/build && \
+    pushd /src/taglib/build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j && \
+    make test && \
+    make install && \
+    ldconfig && \
+    popd && \
+    # Get latest rsgain version from tags
+    RSGAIN_TAG=$(git -c 'versionsort.suffix=-' ls-remote --tags https://github.com/complexlogic/rsgain.git | tr -s ' ' | cut -d '/' -f 3 | grep -vi 'rc' | grep -vi 'beta' | grep -vi '\^{}' | sort -V | tail -1) && \
+    # Clone rsgain repo
+    git clone --depth 1 --branch "$RSGAIN_TAG" https://github.com/complexlogic/rsgain.git /src/rsgain && \
+    # Build rsgain
+    mkdir -p /src/rsgain/build && \
+    pushd /src/rsgain/build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j && \
+    ldconfig && \
+    popd && \
+    # Test rsgain
+    rsgain --version
+
 FROM jlesage/baseimage-gui:ubuntu-18.04
 
 ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
