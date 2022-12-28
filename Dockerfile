@@ -53,6 +53,7 @@ RUN set -x && \
     pushd /src/rsgain/build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make -j && \
+    make install && \
     ldconfig && \
     popd && \
     # Test rsgain
