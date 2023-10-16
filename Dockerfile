@@ -1,4 +1,4 @@
-FROM golang:1 AS trivy_builder
+FROM docker.io/golang:1 AS trivy_builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -7,7 +7,7 @@ RUN set -x && \
     pushd /src/trivy/cmd/trivy && \
     go build
 
-FROM jlesage/baseimage-gui:ubuntu-22.04-v4.4.2
+FROM docker.io/jlesage/baseimage-gui:ubuntu-22.04-v4.4.2
 
 ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     URL_CHROMAPRINT_REPO="https://github.com/acoustid/chromaprint.git" \
