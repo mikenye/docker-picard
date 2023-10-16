@@ -7,7 +7,7 @@ RUN set -x && \
     pushd /src/trivy/cmd/trivy && \
     go build
 
-FROM jlesage/baseimage-gui:ubuntu-18.04
+FROM jlesage/baseimage-gui:ubuntu-22.04-v4.4.2
 
 ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     URL_CHROMAPRINT_REPO="https://github.com/acoustid/chromaprint.git" \
@@ -44,15 +44,16 @@ RUN set -x && \
     # Install Chromaprint dependencies
     KEPT_PACKAGES+=(ffmpeg) && \
     TEMP_PACKAGES+=(libswresample-dev) && \
-    KEPT_PACKAGES+=(libswresample2) && \
+    KEPT_PACKAGES+=(libswresample3) && \
     TEMP_PACKAGES+=(libfftw3-dev) && \
     KEPT_PACKAGES+=(libfftw3-3) && \
     TEMP_PACKAGES+=(libavcodec-dev) && \
-    KEPT_PACKAGES+=(libavcodec57) && \
+    KEPT_PACKAGES+=(libavcodec58) && \
     TEMP_PACKAGES+=(libavformat-dev) && \
-    KEPT_PACKAGES+=(libavformat57) && \
+    KEPT_PACKAGES+=(libavformat58) && \
     # Install Picard dependencies
     TEMP_PACKAGES+=(python3-dev) && \
+    KEPT_PACKAGES+=(python3-six) && \
     TEMP_PACKAGES+=(libdiscid-dev) && \
     KEPT_PACKAGES+=(libdiscid0) && \
     KEPT_PACKAGES+=(libxcb-icccm4) && \
@@ -85,13 +86,13 @@ RUN set -x && \
     KEPT_PACKAGES+=(uuid-runtime) && \
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
-    KEPT_PACKAGES+=(python-aubio) && \
     KEPT_PACKAGES+=(aubio-tools) && \
     KEPT_PACKAGES+=(flac) && \
     KEPT_PACKAGES+=(vorbisgain) && \
     KEPT_PACKAGES+=(wavpack) && \
-    add-apt-repository -y ppa:flexiondotorg/audio && \
     KEPT_PACKAGES+=(mp3gain) && \
+    # Install window compositor
+    KEPT_PACKAGES+=(openbox) && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)
     TEMP_PACKAGES+=(jq) && \
     # Install packages
@@ -159,8 +160,8 @@ RUN set -x && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Add optical drive script from jlesage/docker-handbrake
-    git clone https://github.com/jlesage/docker-handbrake.git /src/docker-handbrake && \
-    cp -v /src/docker-handbrake/rootfs/etc/cont-init.d/95-check-optical-drive.sh /etc/cont-init.d/95-check-optical-drive.sh && \
+    wget https://raw.githubusercontent.com/jlesage/docker-handbrake/6eb5567bcc29c2441507cb8cbd276293ec1790c8/rootfs/etc/cont-init.d/54-check-optical-drive.sh -O /etc/cont-init.d/54-check-optical-drive.sh && \
+    chmod +x /etc/cont-init.d/54-check-optical-drive.sh && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)    
     /src/trivy --cache-dir /tmp/trivy fs --vuln-type os -f json --ignore-unfixed --no-progress -o /tmp/trivy.out / && \
     apt-get install -y --no-install-recommends $(jq .[].Vulnerabilities < /tmp/trivy.out | grep '"PkgName":' | tr -s ' ' | cut -d ':' -f 2 | tr -d ' ",' | uniq) && \
