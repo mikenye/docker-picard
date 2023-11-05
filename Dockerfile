@@ -151,8 +151,8 @@ RUN set -x && \
     python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
-    if picard -v 2>&1 | grep -c error; then exit 1; fi && \
-    picard -v | cut -d ' ' -f 2- >> /VERSIONS && \
+    bash -c "if picard -v 2>&1 | grep -c error; then exit 1; fi" && \
+    bash -c "picard -v | cut -d ' ' -f 2- >> /VERSIONS" && \
     popd && \
     # Update OpenBox config
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
@@ -191,7 +191,7 @@ RUN set -x && \
     fc-cache && \
     # Capture picard version
     mkdir -p /tmp/run/user/app && \
-    picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
+    bash -c "picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION"
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
