@@ -7,7 +7,7 @@ RUN set -x && \
     pushd /src/trivy/cmd/trivy && \
     go build
 
-FROM docker.io/jlesage/baseimage-gui:ubuntu-22.04-v4.4.2
+FROM docker.io/jlesage/baseimage-gui:ubuntu-22.04-v4
 
 ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     URL_CHROMAPRINT_REPO="https://github.com/acoustid/chromaprint.git" \
