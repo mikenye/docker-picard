@@ -67,6 +67,8 @@ RUN set -x && \
     KEPT_PACKAGES+=(gettext) && \
     KEPT_PACKAGES+=(locales) && \
     KEPT_PACKAGES+=(chromium-browser) && \
+    # Package below fixes: issue #77
+    KEPT_PACKAGES+=(libhangul1) && \
     # Package below fixes: issue #42
     KEPT_PACKAGES+=(libgtk-3-0) && \
     KEPT_PACKAGES+=(fonts-takao) && \
