@@ -1,4 +1,4 @@
-FROM golang:1 AS trivy_builder
+FROM docker.io/golang:1.21.3 AS trivy_builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -7,7 +7,7 @@ RUN set -x && \
     pushd /src/trivy/cmd/trivy && \
     go build
 
-FROM jlesage/baseimage-gui:ubuntu-18.04
+FROM docker.io/jlesage/baseimage-gui:ubuntu-22.04-v4
 
 ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     URL_CHROMAPRINT_REPO="https://github.com/acoustid/chromaprint.git" \
@@ -44,15 +44,16 @@ RUN set -x && \
     # Install Chromaprint dependencies
     KEPT_PACKAGES+=(ffmpeg) && \
     TEMP_PACKAGES+=(libswresample-dev) && \
-    KEPT_PACKAGES+=(libswresample2) && \
+    KEPT_PACKAGES+=(libswresample3) && \
     TEMP_PACKAGES+=(libfftw3-dev) && \
     KEPT_PACKAGES+=(libfftw3-3) && \
     TEMP_PACKAGES+=(libavcodec-dev) && \
-    KEPT_PACKAGES+=(libavcodec57) && \
+    KEPT_PACKAGES+=(libavcodec58) && \
     TEMP_PACKAGES+=(libavformat-dev) && \
-    KEPT_PACKAGES+=(libavformat57) && \
+    KEPT_PACKAGES+=(libavformat58) && \
     # Install Picard dependencies
     TEMP_PACKAGES+=(python3-dev) && \
+    KEPT_PACKAGES+=(python3-six) && \
     TEMP_PACKAGES+=(libdiscid-dev) && \
     KEPT_PACKAGES+=(libdiscid0) && \
     KEPT_PACKAGES+=(libxcb-icccm4) && \
@@ -66,6 +67,8 @@ RUN set -x && \
     KEPT_PACKAGES+=(gettext) && \
     KEPT_PACKAGES+=(locales) && \
     KEPT_PACKAGES+=(chromium-browser) && \
+    # Package below fixes: issue #77
+    KEPT_PACKAGES+=(libhangul1) && \
     # Package below fixes: issue #42
     KEPT_PACKAGES+=(libgtk-3-0) && \
     KEPT_PACKAGES+=(fonts-takao) && \
@@ -85,13 +88,13 @@ RUN set -x && \
     KEPT_PACKAGES+=(uuid-runtime) && \
     # Install Picard plugin dependencies
     KEPT_PACKAGES+=(python3-aubio) && \
-    KEPT_PACKAGES+=(python-aubio) && \
     KEPT_PACKAGES+=(aubio-tools) && \
     KEPT_PACKAGES+=(flac) && \
     KEPT_PACKAGES+=(vorbisgain) && \
     KEPT_PACKAGES+=(wavpack) && \
-    add-apt-repository -y ppa:flexiondotorg/audio && \
     KEPT_PACKAGES+=(mp3gain) && \
+    # Install window compositor
+    KEPT_PACKAGES+=(openbox) && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)
     TEMP_PACKAGES+=(jq) && \
     # Install packages
@@ -100,6 +103,8 @@ RUN set -x && \
       ${KEPT_PACKAGES[@]} \
       ${TEMP_PACKAGES[@]} \
       && \
+    # Update ca certs
+    update-ca-certificates -f && \
     git config --global advice.detachedHead false && \
     # Clone googletest (required for build of Chromaprint)
     git clone "$URL_GOOGLETEST_REPO" /src/googletest && \
@@ -148,8 +153,8 @@ RUN set -x && \
     python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
-    if picard -v 2>&1 | grep -c error; then exit 1; fi && \
-    picard -v | cut -d ' ' -f 2- >> /VERSIONS && \
+    bash -c "if picard -v 2>&1 | grep -c error; then exit 1; fi" && \
+    bash -c "picard -v | cut -d ' ' -f 2- >> /VERSIONS" && \
     popd && \
     # Update OpenBox config
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
@@ -159,15 +164,19 @@ RUN set -x && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Add optical drive script from jlesage/docker-handbrake
-    git clone https://github.com/jlesage/docker-handbrake.git /src/docker-handbrake && \
-    cp -v /src/docker-handbrake/rootfs/etc/cont-init.d/95-check-optical-drive.sh /etc/cont-init.d/95-check-optical-drive.sh && \
+    wget \
+      --progress=dot:giga \
+      https://raw.githubusercontent.com/jlesage/docker-handbrake/6eb5567bcc29c2441507cb8cbd276293ec1790c8/rootfs/etc/cont-init.d/54-check-optical-drive.sh \
+      -O /etc/cont-init.d/54-check-optical-drive.sh \
+      && \
+    chmod +x /etc/cont-init.d/54-check-optical-drive.sh && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)    
     /src/trivy --cache-dir /tmp/trivy fs --vuln-type os -f json --ignore-unfixed --no-progress -o /tmp/trivy.out / && \
     apt-get install -y --no-install-recommends $(jq .[].Vulnerabilities < /tmp/trivy.out | grep '"PkgName":' | tr -s ' ' | cut -d ':' -f 2 | tr -d ' ",' | uniq) && \
     # Install streaming_extractor_music
     wget \
       -O /tmp/essentia-extractor-linux-x86_64.tar.gz \
-      --progress=dot:mega \
+      --progress=dot:giga \
       'https://data.metabrainz.org/pub/musicbrainz/acousticbrainz/extractors/essentia-extractor-v2.1_beta2-linux-x86_64.tar.gz' \
       && \
     tar \
@@ -182,13 +191,13 @@ RUN set -x && \
     find /var/log -type f -exec truncate --size=0 {} \; && \
     # Install Chinese Fonts
     wget \
-      --progress=dot \
+      --progress=dot:giga \
       -O /usr/share/fonts/SimSun.ttf \
       "https://github.com/micmro/Stylify-Me/blob/main/.fonts/SimSun.ttf?raw=true" && \
     fc-cache && \
     # Capture picard version
     mkdir -p /tmp/run/user/app && \
-    picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION
+    bash -c "picard -V | grep Picard | cut -d ',' -f 1 | cut -d ' ' -f 2 | tr -d ' ' > /CONTAINER_VERSION"
 
 ENV APP_NAME="MusicBrainz Picard" \
     LC_ALL="en_US.UTF-8" \
