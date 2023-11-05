@@ -162,7 +162,11 @@ RUN set -x && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Add optical drive script from jlesage/docker-handbrake
-    wget https://raw.githubusercontent.com/jlesage/docker-handbrake/6eb5567bcc29c2441507cb8cbd276293ec1790c8/rootfs/etc/cont-init.d/54-check-optical-drive.sh -O /etc/cont-init.d/54-check-optical-drive.sh && \
+    wget \
+      --progress=dot:giga \
+      https://raw.githubusercontent.com/jlesage/docker-handbrake/6eb5567bcc29c2441507cb8cbd276293ec1790c8/rootfs/etc/cont-init.d/54-check-optical-drive.sh \
+      -O /etc/cont-init.d/54-check-optical-drive.sh \
+      && \
     chmod +x /etc/cont-init.d/54-check-optical-drive.sh && \
     # Security updates / fix for issue #37 (https://github.com/mikenye/docker-picard/issues/37)    
     /src/trivy --cache-dir /tmp/trivy fs --vuln-type os -f json --ignore-unfixed --no-progress -o /tmp/trivy.out / && \
@@ -170,7 +174,7 @@ RUN set -x && \
     # Install streaming_extractor_music
     wget \
       -O /tmp/essentia-extractor-linux-x86_64.tar.gz \
-      --progress=dot:mega \
+      --progress=dot:giga \
       'https://data.metabrainz.org/pub/musicbrainz/acousticbrainz/extractors/essentia-extractor-v2.1_beta2-linux-x86_64.tar.gz' \
       && \
     tar \
@@ -185,7 +189,7 @@ RUN set -x && \
     find /var/log -type f -exec truncate --size=0 {} \; && \
     # Install Chinese Fonts
     wget \
-      --progress=dot \
+      --progress=dot:giga \
       -O /usr/share/fonts/SimSun.ttf \
       "https://github.com/micmro/Stylify-Me/blob/main/.fonts/SimSun.ttf?raw=true" && \
     fc-cache && \
