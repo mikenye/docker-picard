@@ -103,6 +103,8 @@ RUN set -x && \
       ${KEPT_PACKAGES[@]} \
       ${TEMP_PACKAGES[@]} \
       && \
+    # Update ca certs
+    update-ca-certificates -f && \
     git config --global advice.detachedHead false && \
     # Clone googletest (required for build of Chromaprint)
     git clone "$URL_GOOGLETEST_REPO" /src/googletest && \
