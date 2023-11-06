@@ -9,7 +9,8 @@ RUN set -x && \
 
 FROM docker.io/jlesage/baseimage-gui:ubuntu-22.04-v4
 
-ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
+ENV CHROMIUM_FLAGS="--no-sandbox" \
+    URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     URL_CHROMAPRINT_REPO="https://github.com/acoustid/chromaprint.git" \
     URL_GOOGLETEST_REPO="https://github.com/google/googletest.git"
     
@@ -31,6 +32,7 @@ RUN set -x && \
       ${KEPT_PACKAGES[@]} \
       ${TEMP_PACKAGES[@]} \
       && \
+    TEMP_PACKAGES+=(gnupg) && \
     # Install pip to allow install of Picard dependencies
     TEMP_PACKAGES+=(python3-pip) && \
     TEMP_PACKAGES+=(python3-setuptools) && \
@@ -69,7 +71,6 @@ RUN set -x && \
     KEPT_PACKAGES+=(libxkbcommon-x11-0) && \
     KEPT_PACKAGES+=(gettext) && \
     KEPT_PACKAGES+=(locales) && \
-    KEPT_PACKAGES+=(chromium-browser) && \
     # Package below fixes: issue #77
     KEPT_PACKAGES+=(libhangul1) && \
     # Package below fixes: issue #42
@@ -156,6 +157,18 @@ RUN set -x && \
     echo "chromaprint $BRANCH_CHROMAPRINT" >> /VERSIONS && \
     popd && \
     ldconfig && \
+    # Install chromium browser - https://askubuntu.com/questions/1204571/how-to-install-chromium-without-snap
+    bash -c " echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster.gpg] http://deb.debian.org/debian buster main' > /etc/apt/sources.list.d/debian.list" && \
+    bash -c " echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster-updates.gpg] http://deb.debian.org/debian buster-updates main' >> /etc/apt/sources.list.d/debian.list" && \
+    bash -c " echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/debian-security-buster.gpg] http://deb.debian.org/debian-security buster/updates main' >> /etc/apt/sources.list.d/debian.list" && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517 && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138 && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 112695A0E562B32A && \
+    bash -c "apt-key export 77E11517 | gpg --dearmour -o /usr/share/keyrings/debian-buster.gpg" && \
+    bash -c "apt-key export 22F3D138 | gpg --dearmour -o /usr/share/keyrings/debian-buster-updates.gpg" && \
+    bash -c "apt-key export E562B32A | gpg --dearmour -o /usr/share/keyrings/debian-security-buster.gpg" && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y chromium && \
     # Clone Picard repo & checkout latest version
     git clone "$URL_PICARD_REPO" /src/picard && \
     pushd /src/picard && \
@@ -178,8 +191,6 @@ RUN set -x && \
     # Update OpenBox config
     sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
     sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
-    # Update chromium-browser config
-    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-software-rasterizer --log-level=3/g' /usr/share/applications/chromium-browser.desktop && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Add optical drive script from jlesage/docker-handbrake
