@@ -35,6 +35,9 @@ RUN set -x && \
     TEMP_PACKAGES+=(python3-pip) && \
     TEMP_PACKAGES+=(python3-setuptools) && \
     TEMP_PACKAGES+=(python3-wheel) && \
+    # SSL Libs
+    TEMP_PACKAGES+=(libssl-dev) && \
+    KEPT_PACKAGES+=(libssl3) && \
     # Install git to allow clones of git repos
     TEMP_PACKAGES+=(git) && \
     # Install build tools to allow building
@@ -105,13 +108,32 @@ RUN set -x && \
       && \
     # Update ca certs
     update-ca-certificates -f && \
+    # Build & install OpenSSL v1.1.1
+    wget \
+      -O /tmp/openssl-1.1.1w.tar.gz \
+      --progress=dot:giga \
+      https://www.openssl.org/source/openssl-1.1.1w.tar.gz \
+      && \
+    mkdir -p /src/openssl && \
+    tar \
+      xzvf \
+      /tmp/openssl-1.1.1w.tar.gz \
+      -C /src/openssl \
+      && \
+    pushd /src/openssl/openssl-* && \
+    ./config && \
+    make test && \
+    make && \
+    make install && \
+    popd && \
+    # Prevent annoying detached head warnings
     git config --global advice.detachedHead false && \
     # Clone googletest (required for build of Chromaprint)
     git clone "$URL_GOOGLETEST_REPO" /src/googletest && \
     pushd /src/googletest && \
     BRANCH_GOOGLETEST=$(git tag --sort="-creatordate" | grep 'release-' | head -1) && \
     git checkout "tags/${BRANCH_GOOGLETEST}" && \
-    echo "$BRANCH_GOOGLETEST" >> /VERSIONS && \
+    echo "googletest $BRANCH_GOOGLETEST" >> /VERSIONS && \
     popd && \
     # Clone Chromaprint repo & checkout latest version
     git clone "$URL_CHROMAPRINT_REPO" /src/chromaprint && \
@@ -130,7 +152,7 @@ RUN set -x && \
     make && \
     make check && \
     make install && \
-    echo "$BRANCH_CHROMAPRINT" >> /VERSIONS && \
+    echo "chromaprint $BRANCH_CHROMAPRINT" >> /VERSIONS && \
     popd && \
     # Clone Picard repo & checkout latest version
     git clone "$URL_PICARD_REPO" /src/picard && \
@@ -139,15 +161,12 @@ RUN set -x && \
     git checkout "tags/${BRANCH_PICARD}" && \
     # Install Picard requirements
     python3 -m pip install --no-cache-dir --upgrade pip && \
-    python3 -m pip install --no-cache-dir -r requirements.txt && \
     python3 -m pip install --no-cache-dir discid python-libdiscid && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
     locale-gen en_US.UTF-8 && \
     export LC_ALL=C.UTF-8 && \
     # Build & install Picard
-    python3 setup.py build && \
-    python3 setup.py build_ext -i && \
-    python3 setup.py build_locales -i && \
-    # python3 setup.py test && \
+    python3 setup.py test && \
     python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
