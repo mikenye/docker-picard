@@ -9,7 +9,8 @@ RUN set -x && \
 
 FROM docker.io/jlesage/baseimage-gui:ubuntu-22.04-v4
 
-ENV URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
+ENV CHROMIUM_FLAGS="--no-sandbox" \
+    URL_PICARD_REPO="https://github.com/metabrainz/picard.git" \
     URL_CHROMAPRINT_REPO="https://github.com/acoustid/chromaprint.git" \
     URL_GOOGLETEST_REPO="https://github.com/google/googletest.git"
     
@@ -31,10 +32,14 @@ RUN set -x && \
       ${KEPT_PACKAGES[@]} \
       ${TEMP_PACKAGES[@]} \
       && \
+    TEMP_PACKAGES+=(gnupg) && \
     # Install pip to allow install of Picard dependencies
     TEMP_PACKAGES+=(python3-pip) && \
     TEMP_PACKAGES+=(python3-setuptools) && \
     TEMP_PACKAGES+=(python3-wheel) && \
+    # SSL Libs
+    TEMP_PACKAGES+=(libssl-dev) && \
+    KEPT_PACKAGES+=(libssl3) && \
     # Install git to allow clones of git repos
     TEMP_PACKAGES+=(git) && \
     # Install build tools to allow building
@@ -66,7 +71,6 @@ RUN set -x && \
     KEPT_PACKAGES+=(libxkbcommon-x11-0) && \
     KEPT_PACKAGES+=(gettext) && \
     KEPT_PACKAGES+=(locales) && \
-    KEPT_PACKAGES+=(chromium-browser) && \
     # Package below fixes: issue #77
     KEPT_PACKAGES+=(libhangul1) && \
     # Package below fixes: issue #42
@@ -105,13 +109,33 @@ RUN set -x && \
       && \
     # Update ca certs
     update-ca-certificates -f && \
+    # Build & install OpenSSL v1.1.1
+    wget \
+      -O /tmp/openssl-1.1.1w.tar.gz \
+      --progress=dot:giga \
+      https://www.openssl.org/source/openssl-1.1.1w.tar.gz \
+      && \
+    mkdir -p /src/openssl && \
+    tar \
+      xzvf \
+      /tmp/openssl-1.1.1w.tar.gz \
+      -C /src/openssl \
+      && \
+    pushd /src/openssl/openssl-* && \
+    ./config && \
+    make test && \
+    make && \
+    make install && \
+    popd && \
+    ldconfig && \
+    # Prevent annoying detached head warnings
     git config --global advice.detachedHead false && \
     # Clone googletest (required for build of Chromaprint)
     git clone "$URL_GOOGLETEST_REPO" /src/googletest && \
     pushd /src/googletest && \
     BRANCH_GOOGLETEST=$(git tag --sort="-creatordate" | grep 'release-' | head -1) && \
     git checkout "tags/${BRANCH_GOOGLETEST}" && \
-    echo "$BRANCH_GOOGLETEST" >> /VERSIONS && \
+    echo "googletest $BRANCH_GOOGLETEST" >> /VERSIONS && \
     popd && \
     # Clone Chromaprint repo & checkout latest version
     git clone "$URL_CHROMAPRINT_REPO" /src/chromaprint && \
@@ -130,37 +154,40 @@ RUN set -x && \
     make && \
     make check && \
     make install && \
-    echo "$BRANCH_CHROMAPRINT" >> /VERSIONS && \
+    echo "chromaprint $BRANCH_CHROMAPRINT" >> /VERSIONS && \
     popd && \
+    ldconfig && \
+    # Install chromium browser - https://askubuntu.com/questions/1204571/how-to-install-chromium-without-snap
+    bash -c " echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster.gpg] http://deb.debian.org/debian buster main' > /etc/apt/sources.list.d/debian.list" && \
+    bash -c " echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster-updates.gpg] http://deb.debian.org/debian buster-updates main' >> /etc/apt/sources.list.d/debian.list" && \
+    bash -c " echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/debian-security-buster.gpg] http://deb.debian.org/debian-security buster/updates main' >> /etc/apt/sources.list.d/debian.list" && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517 && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138 && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 112695A0E562B32A && \
+    bash -c "apt-key export 77E11517 | gpg --dearmour -o /usr/share/keyrings/debian-buster.gpg" && \
+    bash -c "apt-key export 22F3D138 | gpg --dearmour -o /usr/share/keyrings/debian-buster-updates.gpg" && \
+    bash -c "apt-key export E562B32A | gpg --dearmour -o /usr/share/keyrings/debian-security-buster.gpg" && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y chromium && \
     # Clone Picard repo & checkout latest version
     git clone "$URL_PICARD_REPO" /src/picard && \
     pushd /src/picard && \
     BRANCH_PICARD=$(git tag --sort="-creatordate" | head -1) && \
     git checkout "tags/${BRANCH_PICARD}" && \
-    # Fix for: https://stackoverflow.com/questions/59768179/pip-raise-filenotfounderror-errno-2-no-such-file-or-directory-tmp-pip-inst?noredirect=1&lq=1
-    sed -i 's/PyQt5>=5.7.1/PyQt5>=5.11/g' ./requirements.txt && \
     # Install Picard requirements
     python3 -m pip install --no-cache-dir --upgrade pip && \
-    python3 -m pip install --no-cache-dir -r requirements.txt && \
     python3 -m pip install --no-cache-dir discid python-libdiscid && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
     locale-gen en_US.UTF-8 && \
     export LC_ALL=C.UTF-8 && \
     # Build & install Picard
-    python3 setup.py build && \
-    python3 setup.py build_ext -i && \
-    python3 setup.py build_locales -i && \
-    # python3 setup.py test && \
+    python3 setup.py test && \
     python3 setup.py install && \
     mkdir -p /tmp/run/user/app && \
     chmod 0700 /tmp/run/user/app && \
     bash -c "if picard -v 2>&1 | grep -c error; then exit 1; fi" && \
     bash -c "picard -v | cut -d ' ' -f 2- >> /VERSIONS" && \
     popd && \
-    # Update OpenBox config
-    sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
-    sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
-    # Update chromium-browser config
-    sed -i 's/Exec=chromium-browser/Exec=chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-software-rasterizer --log-level=3/g' /usr/share/applications/chromium-browser.desktop && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Add optical drive script from jlesage/docker-handbrake
