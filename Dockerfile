@@ -126,6 +126,7 @@ RUN set -x && \
     make && \
     make install && \
     popd && \
+    ldconfig && \
     # Prevent annoying detached head warnings
     git config --global advice.detachedHead false && \
     # Clone googletest (required for build of Chromaprint)
@@ -154,6 +155,7 @@ RUN set -x && \
     make install && \
     echo "chromaprint $BRANCH_CHROMAPRINT" >> /VERSIONS && \
     popd && \
+    ldconfig && \
     # Clone Picard repo & checkout latest version
     git clone "$URL_PICARD_REPO" /src/picard && \
     pushd /src/picard && \
