@@ -85,7 +85,7 @@ RUN set -x && \
     KEPT_PACKAGES+=(gstreamer1.0-plugins-good) && \
     KEPT_PACKAGES+=(gstreamer1.0-libav) && \
     KEPT_PACKAGES+=(libpulse-mainloop-glib0) && \
-    KEPT_PACKAGES+=(libqt6multimedia6) && \
+    KEPT_PACKAGES+=(libqt5multimedia5-plugins) && \
     KEPT_PACKATES+=(libavcodec57) && \
     # Install Chrome dependencies
     KEPT_PACKAGES+=(dbus-x11) && \
