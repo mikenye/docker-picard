@@ -188,9 +188,6 @@ RUN set -x && \
     bash -c "if picard -v 2>&1 | grep -c error; then exit 1; fi" && \
     bash -c "picard -v | cut -d ' ' -f 2- >> /VERSIONS" && \
     popd && \
-    # Update OpenBox config
-    sed -i 's/<application type="normal">/<application type="normal" title="MusicBrainz Picard">/' /etc/xdg/openbox/rc.xml && \
-    sed -i '/<decor>no<\/decor>/d' /etc/xdg/openbox/rc.xml && \
     # Symlink for fpcalc (issue #32)
     ln -s /usr/local/bin/fpcalc /usr/bin/fpcalc && \
     # Add optical drive script from jlesage/docker-handbrake
