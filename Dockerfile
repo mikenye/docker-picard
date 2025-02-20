@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.22.5 AS trivy_builder
+FROM docker.io/golang:1.23.5 AS trivy_builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
